@@ -1,0 +1,20 @@
+.session-card {
+  display: grid;
+  gap: var(--space-md);
+}
+
+.session-card button {
+  border: none;
+  border-radius: var(--radius-md);
+  background: var(--color-primary);
+  color: var(--color-primary-text);
+  padding: 0.65rem 0.9rem;
+  cursor: pointer;
+  width: fit-content;
+}
+
+.session-card code {
+  background: var(--color-code-bg);
+  padding: 0.1rem var(--space-xs);
+  border-radius: var(--radius-sm);
+}

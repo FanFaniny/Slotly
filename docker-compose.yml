@@ -1,0 +1,19 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: slotly
+      POSTGRES_PASSWORD: slotly
+      POSTGRES_DB: slotly
+    volumes:
+      - slotly_pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U slotly -d slotly"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  slotly_pg_data:
