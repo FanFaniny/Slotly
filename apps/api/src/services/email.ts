@@ -32,7 +32,7 @@ export async function sendBookingConfirmationEmail(data: BookingEmailData) {
         <p>Your appointment with <strong>${data.masterName}</strong> is confirmed.</p>
         <ul>
           <li><strong>Service:</strong> ${data.serviceName}</li>
-          <li><strong>Date:</strong> ${data.startsAt}</li>
+          <li><strong>Date:</strong> ${data.startsAt} (${data.timezone})</li>
         </ul>
         <p>Thank you for booking with Slotly.</p>
       `,
