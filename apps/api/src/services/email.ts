@@ -28,7 +28,7 @@ export async function sendBookingConfirmationEmail(data: BookingEmailData) {
       subject: `Booking confirmed — ${data.serviceName}`,
       html: `
         <h2>Your booking is confirmed!</h2>
-        <p>Hi ${data.clientName},</p>
+        <p>Hey ${data.clientName},</p>
         <p>Your appointment with <strong>${data.masterName}</strong> is confirmed.</p>
         <ul>
           <li><strong>Service:</strong> ${data.serviceName}</li>
