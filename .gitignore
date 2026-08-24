@@ -28,3 +28,8 @@ Thumbs.db
 
 # drizzle
 packages/db/drizzle/meta
+
+#aider config
+.aider.conf.yml
+.aider*
+CONVENTIONS.md
