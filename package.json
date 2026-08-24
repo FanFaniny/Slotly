@@ -23,5 +23,11 @@
   "dependencies": {
     "react-router-dom": "^7.18.2",
     "sonner": "^2.0.8"
+  },
+
+  "pnpm": {
+    "overrides": {
+      "drizzle-orm": "0.38.4"
+    }
   }
 }
