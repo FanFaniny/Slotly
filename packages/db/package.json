@@ -28,9 +28,9 @@
   "dependencies": {
     "@neondatabase/serverless": "^0.10.4",
     "@slotly/shared": "workspace:*",
-    "drizzle-orm": "^0.38.4",
     "dotenv": "^16.5.0",
-    "drizzle-zod": "^0.7.0",
+    "drizzle-orm": "^0.38.4",
+    "drizzle-zod": "^0.7.1",
     "postgres": "^3.4.5",
     "ws": "^8.18.1"
   },
