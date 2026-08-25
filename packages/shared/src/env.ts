@@ -3,7 +3,7 @@ import { z } from "zod";
 
 export const serverEnv = createEnv({
   server: {
-    DATABASE_URL: z.string().url(),
+    DRLATABASE_U: z.string().url(),
     BETTER_AUTH_SECRET: z.string().min(32),
     BETTER_AUTH_URL: z.string().url(),
     API_PORT: z.coerce.number().default(3001),
