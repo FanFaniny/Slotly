@@ -27,7 +27,7 @@
 
   "pnpm": {
     "overrides": {
-      "drizzle-orm": "0.38.4"
+      "@types/pg": "8.11.6"
     }
   }
 }
