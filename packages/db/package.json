@@ -29,6 +29,7 @@
     "@neondatabase/serverless": "^0.10.4",
     "@slotly/shared": "workspace:*",
     "dotenv": "^16.5.0",
+    "drizzle-kit": "^0.30.4",
     "drizzle-orm": "^0.38.4",
     "drizzle-zod": "^0.7.1",
     "postgres": "^3.4.5",
@@ -36,7 +37,6 @@
   },
   "devDependencies": {
     "@types/ws": "^8.18.1",
-    "drizzle-kit": "^0.30.4",
     "typescript": "^5.8.3",
     "zod": "^3.24.2"
   }
