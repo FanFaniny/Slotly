@@ -1,4 +1,3 @@
-import { eq } from "drizzle-orm";
 import type { Database } from "@slotly/db";
 import { masterSettings, masters } from "@slotly/db/schema";
 
@@ -24,7 +23,7 @@ async function uniqueUsername(db: Database, base: string) {
 
   while (true) {
     const existing = await db.query.masters.findFirst({
-      where: eq(masters.username, candidate),
+      where: (m, { eq }) => eq(m.username, candidate),
       columns: { id: true },
     });
 
@@ -37,7 +36,7 @@ async function uniqueUsername(db: Database, base: string) {
 
 export async function ensureMasterProfile(db: Database, user: AuthUser) {
   const existing = await db.query.masters.findFirst({
-    where: eq(masters.userId, user.id),
+    where: (m, { eq }) => eq(m.userId, user.id),
     with: { settings: true },
   });
 
@@ -86,7 +85,7 @@ export async function ensureMasterProfile(db: Database, user: AuthUser) {
   });
 
   return db.query.masters.findFirst({
-    where: eq(masters.id, master.id),
+    where: (m, { eq }) => eq(m.id, master.id),
     with: { settings: true },
   });
 }
