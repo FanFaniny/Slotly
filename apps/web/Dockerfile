@@ -21,6 +21,9 @@ COPY . .
 ARG VITE_API_URL
 ENV VITE_API_URL=$VITE_API_URL
 
+#test
+RUN echo "=== [1] DOCKER ARG CHECK ===" && echo "VITE_API_URL: '$VITE_API_URL'"
+
 # Build web and its dependencies
 RUN pnpm turbo build --filter=@slotly/web...
 
