@@ -35,5 +35,10 @@ COPY apps/web/nginx.conf /etc/nginx/conf.d/default.conf
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
 
+# Проверка: проверяем наличие нового или отсутствие старого URL в папке apps/web/dist/
 RUN echo "=== [CHECK 2: DIST FILES SEARCH] ===" && \
-    grep -rn "VITE_API_URL" dist/ || echo "VITE_API_URL string not found in dist"
+    if grep -q "api.slotly.duckdns.org" -r apps/web/dist/; then \
+      echo "❌ ERROR: Old domain found in build!"; exit 1; \
+    else \
+      echo "✅ SUCCESS: Old domain is gone from apps/web/dist!"; \
+    fi
