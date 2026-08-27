@@ -34,3 +34,6 @@ COPY apps/web/nginx.conf /etc/nginx/conf.d/default.conf
 
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
+
+RUN echo "=== [CHECK 2: DIST FILES SEARCH] ===" && \
+    grep -rn "VITE_API_URL" dist/ || echo "VITE_API_URL string not found in dist"

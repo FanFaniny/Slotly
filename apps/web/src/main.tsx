@@ -6,6 +6,8 @@ import App from "./App";
 import { createTrpcClient, trpc } from "./lib/trpc";
 import "./index.css";
 
+console.log("=== [CHECK 3: BROWSER IMPORT META] ===", import.meta.env.VITE_API_URL);
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
