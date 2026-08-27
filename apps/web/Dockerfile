@@ -27,6 +27,9 @@ RUN echo "=== [1] DOCKER ARG CHECK ===" && echo "VITE_API_URL: '$VITE_API_URL'"
 # Build web and its dependencies
 RUN pnpm turbo build --filter=@slotly/web...
 
+RUN echo "=== URLS FOUND IN DIST ===" && \
+    grep -oE "https?://[a-zA-Z0-9.-]+" -r apps/web/dist/ | sort -u
+
 # Stage 2: static server
 FROM nginx:alpine AS runtime
 COPY --from=build /app/apps/web/dist /usr/share/nginx/html
@@ -36,5 +39,3 @@ EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
 
 # Проверка: проверяем наличие нового или отсутствие старого URL в папке apps/web/dist/
-RUN echo "=== URLS FOUND IN DIST ===" && \
-    grep -oE "https?://[a-zA-Z0-9.-]+" -r apps/web/dist/ | sort -u
