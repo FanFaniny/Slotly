@@ -5,6 +5,8 @@ import type { AppRouter } from "@slotly/trpc";
 
 import { env } from "../env";
 
+console.log("API URL in app:", env.VITE_API_URL);
+
 export const trpc = createTRPCReact<AppRouter>();
 
 export function createTrpcClient(queryClient: QueryClient) {

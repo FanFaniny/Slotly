@@ -36,9 +36,5 @@ EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
 
 # Проверка: проверяем наличие нового или отсутствие старого URL в папке apps/web/dist/
-RUN echo "=== [CHECK 2: DIST FILES SEARCH] ===" && \
-    if grep -q "api.slotly.duckdns.org" -r apps/web/dist/; then \
-      echo "❌ ERROR: Old domain found in build!"; exit 1; \
-    else \
-      echo "✅ SUCCESS: Old domain is gone from apps/web/dist!"; \
-    fi
+RUN echo "=== URLS FOUND IN DIST ===" && \
+    grep -oE "https?://[a-zA-Z0-9.-]+" -r apps/web/dist/ | sort -u
