@@ -2,7 +2,8 @@ import { config } from "dotenv";
 import { defineConfig } from "drizzle-kit";
 import { resolve } from "node:path";
 
-config({ path: resolve(process.cwd(), "../../.env") });
+config({ path: resolve(__dirname, "../../.env") });
+config({ path: resolve(process.cwd(), ".env") });
 
 export default defineConfig({
   schema: "./dist/schema/index.js",
