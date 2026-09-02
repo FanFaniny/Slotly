@@ -48,37 +48,39 @@ export function AdminLayout() {
 
   return (
     <div className="flex min-h-screen">
-      <aside className="w-56 border-r bg-card">
-        <div className="flex h-14 items-center border-b px-4">
-          <Link to="/admin" className="text-lg font-bold text-primary">
-            Slotly
-          </Link>
+      <aside className="sticky top-0 flex h-screen w-56 flex-col justify-between border-r bg-card">
+        <div>
+          <div className="flex h-14 items-center border-b px-4">
+            <Link to="/admin" className="text-lg font-bold text-primary">
+              Slotly
+            </Link>
+          </div>
+          <nav className="space-y-1 p-3">
+            {navItems.map((item) => {
+              const Icon = item.icon;
+              const active =
+                item.to === "/admin"
+                  ? location.pathname === "/admin"
+                  : location.pathname.startsWith(item.to);
+              return (
+                <Link
+                  key={item.to}
+                  to={item.to}
+                  className={cn(
+                    "flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors",
+                    active
+                      ? "bg-primary text-primary-foreground"
+                      : "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
+                  )}
+                >
+                  <Icon className="h-4 w-4" />
+                  {item.label}
+                </Link>
+              );
+            })}
+          </nav>
         </div>
-        <nav className="space-y-1 p-3">
-          {navItems.map((item) => {
-            const Icon = item.icon;
-            const active =
-              item.to === "/admin"
-                ? location.pathname === "/admin"
-                : location.pathname.startsWith(item.to);
-            return (
-              <Link
-                key={item.to}
-                to={item.to}
-                className={cn(
-                  "flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors",
-                  active
-                    ? "bg-primary text-primary-foreground"
-                    : "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
-                )}
-              >
-                <Icon className="h-4 w-4" />
-                {item.label}
-              </Link>
-            );
-          })}
-        </nav>
-        <div className="absolute bottom-0 w-56 border-t p-3">
+        <div className="border-t p-3">
           {master && (
             <p className="mb-2 truncate text-xs text-muted-foreground">
               /{master.username}
