@@ -28,6 +28,7 @@
 │           │       ├── badge.tsx
 │           │       ├── button.tsx
 │           │       ├── card.tsx
+│           │       ├── input.tsx
 │           │       ├── skeleton.tsx
 │           │       └── textarea.tsx
 │           ├── layouts/
@@ -47,6 +48,8 @@
 │           │       └── SettingsPage.tsx   # Profile, booking settings, work schedule, form fields
 │           ├── stores/
 │           │   └── booking-store.ts  # Booking step state (1 | 2 | 3)
+│           ├── types/
+│           │   └── client.ts         # Client and client table component type definitions
 │           └── vite-env.d.ts         # Vite env types (VITE_API_URL)
 │
 ├── packages/

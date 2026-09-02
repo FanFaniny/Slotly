@@ -94,6 +94,9 @@ export function AuthPanel() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             minLength={8}
+            pattern="(?=.*[A-Z])(?=.*\d).{8,}"              
+            title="Must contain at least 8 characters,   
+including at least one uppercase letter and one number." 
             required
           />
         </div>
