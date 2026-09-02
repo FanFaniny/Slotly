@@ -32,7 +32,7 @@ export function HoldCountdown({ expiresAt, onExpired }: HoldCountdownProps) {
 
   return (
     <Badge variant={isUrgent ? "destructive" : "warning"}>
-      Time left: {minutes}:{seconds.toString().padStart(2, "0")}
+      Hold time left: {minutes}:{seconds.toString().padStart(2, "0")}
     </Badge>
   );
 }
