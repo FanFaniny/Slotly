@@ -67,7 +67,7 @@ export function DynamicBookingForm({
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="email">Email</Label>
+        <Label htmlFor="email">Email *</Label>
         <Input id="email" type="email" {...register("email")} />
         {errors.email && (
           <p className="text-sm text-destructive">{String(errors.email.message)}</p>
