@@ -52,24 +52,32 @@ export function AdminLayout() {
     <div className="flex min-h-screen">
       <aside
         className={cn(
-          "sticky top-0 flex h-screen flex-col justify-between border-r bg-card transition-all duration-300",
+          "sticky top-0 flex h-screen shrink-0 flex-col justify-between overflow-hidden border-r bg-card transition-[width] duration-300 ease-in-out select-none",
           isCollapsed ? "w-16" : "w-56",
         )}
       >
         <div>
           <div
             className={cn(
-              "flex h-14 items-center border-b px-4",
-              isCollapsed && "justify-center px-2",
+              "flex h-14 items-center border-b transition-all duration-300",
+              isCollapsed ? "justify-center px-2" : "px-4",
             )}
           >
             <button
               type="button"
               onClick={() => setIsCollapsed(!isCollapsed)}
-              className="text-lg font-bold text-primary transition-opacity hover:opacity-80 focus:outline-none"
+              className="flex items-center text-lg font-bold text-primary transition-opacity hover:opacity-80 focus:outline-none"
               title={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
             >
-              {isCollapsed ? "S" : "Slotly"}
+              <span>S</span>
+              <span
+                className={cn(
+                  "overflow-hidden transition-all duration-300 ease-in-out whitespace-nowrap",
+                  isCollapsed ? "max-w-0 opacity-0" : "max-w-xs opacity-100",
+                )}
+              >
+                lotly
+              </span>
             </button>
           </div>
           <nav className="space-y-1 p-3">
@@ -85,23 +93,37 @@ export function AdminLayout() {
                   to={item.to}
                   title={isCollapsed ? item.label : undefined}
                   className={cn(
-                    "flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors",
-                    isCollapsed && "justify-center px-2",
+                    "flex items-center rounded-md py-2 text-sm font-medium transition-colors",
+                    isCollapsed ? "justify-center px-0" : "gap-2 px-3",
                     active
                       ? "bg-primary text-primary-foreground"
                       : "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
                   )}
                 >
                   <Icon className="h-4 w-4 shrink-0" />
-                  {!isCollapsed && <span>{item.label}</span>}
+                  <span
+                    className={cn(
+                      "overflow-hidden transition-all duration-300 ease-in-out whitespace-nowrap",
+                      isCollapsed
+                        ? "max-w-0 opacity-0 -translate-x-2"
+                        : "max-w-xs opacity-100 translate-x-0",
+                    )}
+                  >
+                    {item.label}
+                  </span>
                 </Link>
               );
             })}
           </nav>
         </div>
-        <div className={cn("border-t p-3", isCollapsed && "px-2")}>
-          {master && !isCollapsed && (
-            <p className="mb-2 truncate text-xs text-muted-foreground">
+        <div className={cn("border-t p-3 transition-all duration-300", isCollapsed && "px-2")}>
+          {master && (
+            <p
+              className={cn(
+                "mb-2 overflow-hidden truncate text-xs text-muted-foreground transition-all duration-300 whitespace-nowrap",
+                isCollapsed ? "max-h-0 opacity-0" : "max-h-6 opacity-100",
+              )}
+            >
               /{master.username}
             </p>
           )}
@@ -109,14 +131,23 @@ export function AdminLayout() {
             variant="ghost"
             size="sm"
             className={cn(
-              "w-full",
-              isCollapsed ? "justify-center px-2" : "justify-start",
+              "w-full transition-all duration-300",
+              isCollapsed ? "justify-center px-0" : "justify-start gap-2",
             )}
             onClick={handleSignOut}
             title={isCollapsed ? "Sign out" : undefined}
           >
-            <LogOut className={cn("h-4 w-4 shrink-0", !isCollapsed && "mr-2")} />
-            {!isCollapsed && "Sign out"}
+            <LogOut className="h-4 w-4 shrink-0" />
+            <span
+              className={cn(
+                "overflow-hidden transition-all duration-300 ease-in-out whitespace-nowrap",
+                isCollapsed
+                  ? "max-w-0 opacity-0 -translate-x-2"
+                  : "max-w-xs opacity-100 translate-x-0",
+              )}
+            >
+              Sign out
+            </span>
           </Button>
         </div>
       </aside>
