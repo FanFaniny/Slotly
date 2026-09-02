@@ -10,14 +10,7 @@ import { useMemo, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { trpc } from "@/lib/trpc";
-
-type Client = {
-  id: string;
-  name: string;
-  phone: string;
-  email: string | null;
-  notes: string | null;
-};
+import type { Client, ClientSearchProps, ClientsTableProps } from "@/types/client";
 
 const columnHelper = createColumnHelper<Client>();
 
@@ -34,11 +27,6 @@ const columns = [
   }),
 ];
 
-interface ClientSearchProps {
-  value: string;
-  onChange: (value: string) => void;
-}
-
 export function ClientSearch({ value, onChange }: ClientSearchProps) {
   return (
     <div className="relative max-w-sm">
@@ -51,10 +39,6 @@ export function ClientSearch({ value, onChange }: ClientSearchProps) {
       />
     </div>
   );
-}
-
-interface ClientsTableProps {
-  search: string;
 }
 
 export function ClientsTable({ search }: ClientsTableProps) {
