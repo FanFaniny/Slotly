@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { buildBookingZodSchema, type BookingFormField } from "@slotly/shared";
+import { buildBookingZodSchema } from "@slotly/shared";
 import { Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -8,18 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-
-interface DynamicBookingFormProps {
-  customFields: BookingFormField[];
-  onSubmit: (data: {
-    name: string;
-    phone: string;
-    email?: string;
-    comment?: string;
-    customFieldValues: Record<string, string | boolean | number>;
-  }) => void;
-  isSubmitting: boolean;
-}
+import type { DynamicBookingFormProps } from "@/types/booking";
 
 export function DynamicBookingForm({
   customFields,
