@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   BarChart3,
   Calendar,
@@ -24,6 +25,7 @@ const navItems = [
 
 export function AdminLayout() {
   const location = useLocation();
+  const [isCollapsed, setIsCollapsed] = useState(false);
   const { data: session, isLoading } = trpc.auth.getSession.useQuery();
   const { data: master } = trpc.auth.getMaster.useQuery(undefined, {
     enabled: !!session,
@@ -48,12 +50,27 @@ export function AdminLayout() {
 
   return (
     <div className="flex min-h-screen">
-      <aside className="sticky top-0 flex h-screen w-56 flex-col justify-between border-r bg-card">
+      <aside
+        className={cn(
+          "sticky top-0 flex h-screen flex-col justify-between border-r bg-card transition-all duration-300",
+          isCollapsed ? "w-16" : "w-56",
+        )}
+      >
         <div>
-          <div className="flex h-14 items-center border-b px-4">
-            <Link to="/admin" className="text-lg font-bold text-primary">
-              Slotly
-            </Link>
+          <div
+            className={cn(
+              "flex h-14 items-center border-b px-4",
+              isCollapsed && "justify-center px-2",
+            )}
+          >
+            <button
+              type="button"
+              onClick={() => setIsCollapsed(!isCollapsed)}
+              className="text-lg font-bold text-primary transition-opacity hover:opacity-80 focus:outline-none"
+              title={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+            >
+              {isCollapsed ? "S" : "Slotly"}
+            </button>
           </div>
           <nav className="space-y-1 p-3">
             {navItems.map((item) => {
@@ -66,22 +83,24 @@ export function AdminLayout() {
                 <Link
                   key={item.to}
                   to={item.to}
+                  title={isCollapsed ? item.label : undefined}
                   className={cn(
                     "flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors",
+                    isCollapsed && "justify-center px-2",
                     active
                       ? "bg-primary text-primary-foreground"
                       : "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
                   )}
                 >
-                  <Icon className="h-4 w-4" />
-                  {item.label}
+                  <Icon className="h-4 w-4 shrink-0" />
+                  {!isCollapsed && <span>{item.label}</span>}
                 </Link>
               );
             })}
           </nav>
         </div>
-        <div className="border-t p-3">
-          {master && (
+        <div className={cn("border-t p-3", isCollapsed && "px-2")}>
+          {master && !isCollapsed && (
             <p className="mb-2 truncate text-xs text-muted-foreground">
               /{master.username}
             </p>
@@ -89,11 +108,15 @@ export function AdminLayout() {
           <Button
             variant="ghost"
             size="sm"
-            className="w-full justify-start"
+            className={cn(
+              "w-full",
+              isCollapsed ? "justify-center px-2" : "justify-start",
+            )}
             onClick={handleSignOut}
+            title={isCollapsed ? "Sign out" : undefined}
           >
-            <LogOut className="mr-2 h-4 w-4" />
-            Sign out
+            <LogOut className={cn("h-4 w-4 shrink-0", !isCollapsed && "mr-2")} />
+            {!isCollapsed && "Sign out"}
           </Button>
         </div>
       </aside>
