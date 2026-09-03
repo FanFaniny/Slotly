@@ -5,6 +5,7 @@ import timeGridPlugin from "@fullcalendar/timegrid";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 
+import { BookingInfoModal } from "@/components/admin/BookingInfoModal";
 import { Skeleton } from "@/components/ui/skeleton";
 import { trpc } from "@/lib/trpc";
 
@@ -12,6 +13,10 @@ export function CalendarPage() {
   const utils = trpc.useUtils();
   const calendarRef = useRef<FullCalendar>(null);
   const [isMobile, setIsMobile] = useState(false);
+  const [selectedBooking, setSelectedBooking] = useState<{
+    id: string;
+    title: string;
+  } | null>(null);
 
   // Отслеживаем экран через matchMedia (эффективнее чем resize)
   useEffect(() => {
@@ -107,16 +112,23 @@ export function CalendarPage() {
             });
           }}
           eventClick={(info) => {
-            const { type, status } = info.event.extendedProps;
-            if (type === "booking" && status === "confirmed") {
-              updateStatus.mutate({
-                bookingId: info.event.id,
-                status: "cancelled",
+            const { type } = info.event.extendedProps;
+            if (type === "booking") {
+              setSelectedBooking({
+                id: info.event.id,
+                title: info.event.title,
               });
             }
           }}
         />
       </div>
+
+      <BookingInfoModal
+        isOpen={!!selectedBooking}
+        bookingId={selectedBooking?.id ?? null}
+        bookingTitle={selectedBooking?.title}
+        onClose={() => setSelectedBooking(null)}
+      />
     </div>
   );
 }
