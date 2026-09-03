@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -15,11 +16,30 @@ export function BookingInfoModal({
   bookingId,
   bookingTitle,
 }: BookingInfoModalProps) {
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        onClose();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen, onClose]);
+
   if (!isOpen || !bookingId) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div className="relative w-full max-w-lg rounded-lg border bg-card p-6 shadow-lg">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+      onClick={onClose}
+    >
+      <div
+        className="relative w-full max-w-lg rounded-lg border bg-card p-6 shadow-lg"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="flex items-center justify-between border-b pb-3">
           <h2 className="text-lg font-semibold">Booking Details</h2>
           <button
