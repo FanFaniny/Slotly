@@ -8,7 +8,7 @@ import {
   services,
 } from "@slotly/db/schema";
 import dayjs from "dayjs";
-import { and, asc, eq, gte, lte, ne } from "drizzle-orm";
+import { and, asc, eq, gte, lte } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 
 export async function listBookings(
@@ -68,6 +68,94 @@ export async function listBookings(
       email: row.clientEmail,
     },
   }));
+}
+
+export async function getBookingById(
+  db: Database,
+  masterId: string,
+  bookingId: string,
+) {
+  const [row] = await db
+    .select({
+      id: bookings.id,
+      startsAt: bookings.startsAt,
+      endsAt: bookings.endsAt,
+      status: bookings.status,
+      comment: bookings.comment,
+      customFieldValues: bookings.customFieldValues,
+      createdAt: bookings.createdAt,
+      serviceId: bookings.serviceId,
+      serviceName: services.name,
+      serviceDurationMin: services.durationMin,
+      servicePriceCents: services.priceCents,
+      clientId: bookings.clientId,
+      clientName: clients.name,
+      clientPhone: clients.phone,
+      clientEmail: clients.email,
+    })
+    .from(bookings)
+    .innerJoin(services, eq(bookings.serviceId, services.id))
+    .innerJoin(clients, eq(bookings.clientId, clients.id))
+    .where(
+      and(eq(bookings.id, bookingId), eq(bookings.masterId, masterId)),
+    );
+
+  if (!row) {
+    throw new TRPCError({ code: "NOT_FOUND", message: "BOOKING_NOT_FOUND" });
+  }
+
+  return {
+    id: row.id,
+    startsAt: row.startsAt.toISOString(),
+    endsAt: row.endsAt.toISOString(),
+    status: row.status,
+    comment: row.comment,
+    customFieldValues: row.customFieldValues,
+    createdAt: row.createdAt.toISOString(),
+    service: {
+      id: row.serviceId,
+      name: row.serviceName,
+      durationMin: row.serviceDurationMin,
+      priceCents: row.servicePriceCents,
+    },
+    client: {
+      id: row.clientId,
+      name: row.clientName,
+      phone: row.clientPhone,
+      email: row.clientEmail,
+    },
+  };
+}
+
+export interface UpdateBookingInput {
+  bookingId: string;
+  status?: BookingStatus;
+  comment?: string | null;
+  notifyClient?: boolean;
+}
+
+export async function updateBooking(
+  db: Database,
+  masterId: string,
+  input: UpdateBookingInput,
+) {
+  const [updated] = await db
+    .update(bookings)
+    .set({
+      ...(input.status !== undefined && { status: input.status }),
+      ...(input.comment !== undefined && { comment: input.comment }),
+      updatedAt: new Date(),
+    })
+    .where(
+      and(eq(bookings.id, input.bookingId), eq(bookings.masterId, masterId)),
+    )
+    .returning();
+
+  if (!updated) {
+    throw new TRPCError({ code: "NOT_FOUND", message: "BOOKING_NOT_FOUND" });
+  }
+
+  return updated;
 }
 
 export async function updateBookingStatus(

@@ -4,8 +4,10 @@ import { requireMaster } from "../../lib/master.js";
 import {
   createBlockedTime,
   deleteBlockedTime,
+  getBookingById,
   getCalendarEvents,
   listBookings,
+  updateBooking,
   updateBookingStatus,
 } from "../../services/admin/calendar.js";
 import { protectedProcedure, router } from "../../trpc.js";
@@ -38,6 +40,29 @@ export const adminCalendarRouter = router({
         input.rangeStart,
         input.rangeEnd,
       );
+    }),
+
+  getBooking: protectedProcedure
+    .input(z.object({ id: z.string().uuid() }))
+    .query(async ({ ctx, input }) => {
+      const master = await requireMaster(ctx.db, ctx.session.user.id);
+      return getBookingById(ctx.db, master.id, input.id);
+    }),
+
+  updateBooking: protectedProcedure
+    .input(
+      z.object({
+        bookingId: z.string().uuid(),
+        status: z
+          .enum(["pending", "confirmed", "cancelled", "completed", "no_show"])
+          .optional(),
+        comment: z.string().max(1000).nullable().optional(),
+        notifyClient: z.boolean().optional(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const master = await requireMaster(ctx.db, ctx.session.user.id);
+      return updateBooking(ctx.db, master.id, input);
     }),
 
   updateStatus: protectedProcedure
