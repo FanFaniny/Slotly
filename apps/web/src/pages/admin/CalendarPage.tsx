@@ -11,27 +11,38 @@ import { trpc } from "@/lib/trpc";
 export function CalendarPage() {
   const utils = trpc.useUtils();
   const calendarRef = useRef<FullCalendar>(null);
-  const [isMobile, setIsMobile] = useState(() =>
-    typeof window !== "undefined" ? window.innerWidth < 768 : false
-  );
+  const [isMobile, setIsMobile] = useState(false);
 
+  // Отслеживаем экран через matchMedia (эффективнее чем resize)
   useEffect(() => {
-    const handleResize = () => {
-      const mobile = window.innerWidth < 768;
-      setIsMobile(mobile);
-    };
+    const mediaQuery = window.matchMedia("(max-width: 767px)");
+    setIsMobile(mediaQuery.matches);
 
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
+    const handleChange = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+    mediaQuery.addEventListener("change", handleChange);
+    return () => mediaQuery.removeEventListener("change", handleChange);
   }, []);
 
-  const [queryParams, setQueryParams] = useState({
-    rangeStart: new Date().toISOString(),
-    rangeEnd: new Date(Date.now() + 30 * 86400000).toISOString(),
-  });
+  // Динамически меняем вид без сброса интерфейса при изменении экрана
+  useEffect(() => {
+    const api = calendarRef.current?.getApi();
+    if (api) {
+      const targetView = isMobile ? "timeGridDay" : "timeGridWeek";
+      if (api.view.type !== targetView) {
+        api.changeView(targetView);
+      }
+    }
+  }, [isMobile]);
+
+  // Храним параметры запроса, изначально пустые до вызова datesSet
+  const [queryParams, setQueryParams] = useState<{
+    rangeStart: string;
+    rangeEnd: string;
+  } | null>(null);
 
   const { data, isLoading } = trpc.admin.calendar.getEvents.useQuery(
-    queryParams,
+    queryParams!,
+    { enabled: !!queryParams } // Запрос идет только когда datesSet установит даты
   );
 
   const updateStatus = trpc.admin.calendar.updateStatus.useMutation({
@@ -63,7 +74,7 @@ export function CalendarPage() {
     return [...bookingEvents, ...blockedEvents];
   }, [data]);
 
-  if (isLoading) return <Skeleton className="h-[600px] w-full" />;
+  if (isLoading && !queryParams) return <Skeleton className="h-[600px] w-full" />;
 
   return (
     <div className="space-y-4">
@@ -96,8 +107,8 @@ export function CalendarPage() {
             });
           }}
           eventClick={(info) => {
-            const status = info.event.extendedProps.status;
-            if (status === "confirmed") {
+            const { type, status } = info.event.extendedProps;
+            if (type === "booking" && status === "confirmed") {
               updateStatus.mutate({
                 bookingId: info.event.id,
                 status: "cancelled",
