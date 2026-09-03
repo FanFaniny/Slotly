@@ -3,14 +3,12 @@ import interactionPlugin from "@fullcalendar/interaction";
 import FullCalendar from "@fullcalendar/react";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { toast } from "sonner";
 
-import { BookingInfoModal } from "@/components/admin/BookingInfoModal";
 import { Skeleton } from "@/components/ui/skeleton";
 import { trpc } from "@/lib/trpc";
+import { BookingInfoModal } from "@/pages/admin/services/BookingInfo";
 
 export function CalendarPage() {
-  const utils = trpc.useUtils();
   const calendarRef = useRef<FullCalendar>(null);
   const [isMobile, setIsMobile] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState<{
@@ -18,7 +16,6 @@ export function CalendarPage() {
     title: string;
   } | null>(null);
 
-  // Отслеживаем экран через matchMedia (эффективнее чем resize)
   useEffect(() => {
     const mediaQuery = window.matchMedia("(max-width: 767px)");
     setIsMobile(mediaQuery.matches);
@@ -28,7 +25,6 @@ export function CalendarPage() {
     return () => mediaQuery.removeEventListener("change", handleChange);
   }, []);
 
-  // Динамически меняем вид без сброса интерфейса при изменении экрана
   useEffect(() => {
     const api = calendarRef.current?.getApi();
     if (api) {
@@ -39,7 +35,6 @@ export function CalendarPage() {
     }
   }, [isMobile]);
 
-  // Храним параметры запроса, изначально пустые до вызова datesSet
   const [queryParams, setQueryParams] = useState<{
     rangeStart: string;
     rangeEnd: string;
@@ -47,16 +42,8 @@ export function CalendarPage() {
 
   const { data, isLoading } = trpc.admin.calendar.getEvents.useQuery(
     queryParams!,
-    { enabled: !!queryParams } // Запрос идет только когда datesSet установит даты
+    { enabled: !!queryParams }
   );
-
-  const updateStatus = trpc.admin.calendar.updateStatus.useMutation({
-    onSuccess: () => {
-      toast.success("Booking updated");
-      utils.admin.calendar.getEvents.invalidate();
-    },
-    onError: (err) => toast.error(err.message),
-  });
 
   const events = useMemo(() => {
     if (!data) return [];
@@ -106,9 +93,14 @@ export function CalendarPage() {
           height="auto"
           handleWindowResize={true}
           datesSet={(info) => {
-            setQueryParams({
-              rangeStart: info.start.toISOString(),
-              rangeEnd: info.end.toISOString(),
+            const rangeStart = info.start.toISOString();
+            const rangeEnd = info.end.toISOString();
+
+            setQueryParams((prev) => {
+              if (prev?.rangeStart === rangeStart && prev?.rangeEnd === rangeEnd) {
+                return prev;
+              }
+              return { rangeStart, rangeEnd };
             });
           }}
           eventClick={(info) => {
