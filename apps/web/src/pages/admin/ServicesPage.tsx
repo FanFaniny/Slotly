@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { trpc } from "@/lib/trpc";
 import { formatDuration, formatPrice } from "@/lib/utils";
+import { DeleteServiceModal } from "./services/DeleteServiceModal";
 import { ServiceInfoModal, type ServiceItem } from "./services/ServiceInfoModal";
 
 export function ServicesPage() {
@@ -16,6 +17,9 @@ export function ServicesPage() {
   const { data: services, isLoading } = trpc.admin.services.list.useQuery();
   const [showForm, setShowForm] = useState(false);
   const [selectedService, setSelectedService] = useState<ServiceItem | null>(
+    null,
+  );
+  const [serviceToDelete, setServiceToDelete] = useState<ServiceItem | null>(
     null,
   );
   const [form, setForm] = useState({
@@ -39,6 +43,7 @@ export function ServicesPage() {
     onSuccess: () => {
       toast.success("Service removed");
       utils.admin.services.list.invalidate();
+      setServiceToDelete(null);
     },
     onError: (err) => toast.error(err.message),
   });
@@ -150,7 +155,7 @@ export function ServicesPage() {
                 size="icon"
                 onClick={(e) => {
                   e.stopPropagation();
-                  deleteService.mutate({ id: service.id });
+                  setServiceToDelete(service);
                 }}
               >
                 <Trash2 className="h-4 w-4" />
@@ -167,6 +172,18 @@ export function ServicesPage() {
         isOpen={Boolean(selectedService)}
         service={selectedService}
         onClose={() => setSelectedService(null)}
+      />
+
+      <DeleteServiceModal
+        isOpen={Boolean(serviceToDelete)}
+        serviceName={serviceToDelete?.name}
+        isPending={deleteService.isPending}
+        onClose={() => setServiceToDelete(null)}
+        onConfirm={() => {
+          if (serviceToDelete) {
+            deleteService.mutate({ id: serviceToDelete.id });
+          }
+        }}
       />
     </div>
   );
