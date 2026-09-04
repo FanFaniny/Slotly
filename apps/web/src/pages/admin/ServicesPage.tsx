@@ -181,7 +181,11 @@ export function ServicesPage() {
         onClose={() => setServiceToDelete(null)}
         onConfirm={() => {
           if (serviceToDelete) {
-            deleteService.mutate({ id: serviceToDelete.id });
+              deleteService.mutate({ id: serviceToDelete.id },
+             {
+               onSuccess: () => setServiceToDelete(null),
+             }
+            );
           }
         }}
       />
