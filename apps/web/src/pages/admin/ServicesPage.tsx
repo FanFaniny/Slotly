@@ -9,11 +9,15 @@ import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { trpc } from "@/lib/trpc";
 import { formatDuration, formatPrice } from "@/lib/utils";
+import { ServiceInfoModal, type ServiceItem } from "./services/ServiceInfoModal";
 
 export function ServicesPage() {
   const utils = trpc.useUtils();
   const { data: services, isLoading } = trpc.admin.services.list.useQuery();
   const [showForm, setShowForm] = useState(false);
+  const [selectedService, setSelectedService] = useState<ServiceItem | null>(
+    null,
+  );
   const [form, setForm] = useState({
     name: "",
     description: "",
@@ -127,7 +131,11 @@ export function ServicesPage() {
 
       <div className="space-y-3">
         {services?.map((service) => (
-          <Card key={service.id}>
+          <Card
+            key={service.id}
+            className="cursor-pointer transition-colors hover:bg-muted/50"
+            onClick={() => setSelectedService(service)}
+          >
             <CardContent className="flex items-center justify-between py-4">
               <div>
                 <p className="font-medium">{service.name}</p>
@@ -140,9 +148,10 @@ export function ServicesPage() {
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={() =>
-                  deleteService.mutate({ id: service.id })
-                }
+                onClick={(e) => {
+                  e.stopPropagation();
+                  deleteService.mutate({ id: service.id });
+                }}
               >
                 <Trash2 className="h-4 w-4" />
               </Button>
@@ -153,6 +162,12 @@ export function ServicesPage() {
           <p className="text-muted-foreground">No services yet.</p>
         )}
       </div>
+
+      <ServiceInfoModal
+        isOpen={Boolean(selectedService)}
+        service={selectedService}
+        onClose={() => setSelectedService(null)}
+      />
     </div>
   );
 }
