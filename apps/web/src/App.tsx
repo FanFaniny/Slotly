@@ -22,6 +22,7 @@ export function App() {
         <Route element={<PublicLayout />}>
           <Route index element={<HomePage />} />
           <Route path="login" element={<LoginPage />} />
+          <Route path="profile" element={<ProfilePage />} />
           <Route path=":username" element={<BookingPage />} />
           <Route path=":username/success" element={<BookingSuccessPage />} />
         </Route>
@@ -31,7 +32,6 @@ export function App() {
           <Route path="calendar" element={<CalendarPage />} />
           <Route path="services" element={<ServicesPage />} />
           <Route path="clients" element={<ClientsPage />} />
-          <Route path="profile" element={<ProfilePage />} />
           <Route path="settings" element={<SettingsPage />} />
         </Route>
 

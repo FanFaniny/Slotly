@@ -1,11 +1,9 @@
 import { useState } from "react";
 import {
-  BarChart3,
   Calendar,
   LayoutDashboard,
   LogOut,
   Settings,
-  User,
   Users,
   Wrench,
 } from "lucide-react";
@@ -21,7 +19,6 @@ const navItems = [
   { to: "/admin/calendar", label: "Calendar", icon: Calendar },
   { to: "/admin/services", label: "Services", icon: Wrench },
   { to: "/admin/clients", label: "Clients", icon: Users },
-  { to: "/admin/profile", label: "Profile", icon: User },
   { to: "/admin/settings", label: "Settings", icon: Settings },
 ];
 
