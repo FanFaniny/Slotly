@@ -1,7 +1,15 @@
 ```
 .
+├── .env.example                     # Environment variable template
+├── CONVENTIONS.md                   # Project coding and workflow conventions
+├── docker-compose.yml               # Docker orchestration for db, api, web services
+├── package.json                     # Root pnpm workspace config and scripts
+├── tsconfig.json                    # Root TypeScript configuration
+├── turbo.json                       # Turborepo task pipeline config
+├── structure.md                     # This file: project directory structure reference
+│
 ├── apps/
-│   ├── api/                          # Backend API (Fastify + tRPC + Better Auth)
+│   ├── api/                         # Backend API (Fastify + tRPC + Better Auth)
 │   │   └── src/
 │   │       ├── auth.ts               # Better Auth instance (exported `Auth` type)
 │   │       ├── lib/
@@ -11,11 +19,12 @@
 │   │       ├── routes/
 │   │       │   └── auth.ts           # Auth routes (`/api/auth/*`, `/api/me`) + env URL helper
 │   │       └── services/
-│   │           ├── email.ts          # Booking email data + sending
+│   │           ├── email.ts          # Booking email data + sending (Resend integration)
 │   │           ├── onboarding.ts     # Ensures master profile exists (creates on first login)
 │   │           └── sentry.ts         # Sentry init + captureException wrapper
 │   │
-│   └── web/                          # Frontend (React + Vite + tRPC client)
+│   └── web/                         # Frontend (React + Vite + tRPC client)
+│       ├── vite.config.ts            # Vite config with env debug, proxy, and path aliases
 │       └── src/
 │           ├── components/
 │           │   ├── AuthPanel.tsx     # Sign-in / Sign-up form (Better Auth client)
@@ -54,6 +63,7 @@
 │
 ├── packages/
 │   ├── db/                           # Database package (Drizzle ORM)
+│   │   ├── drizzle.config.ts        # Drizzle ORM kit config (schema path, dialect, db creds)
 │   │   └── src/
 │   │       ├── client.ts             # createDb/getDb (Neon or Postgres driver)
 │   │       └── schema/
