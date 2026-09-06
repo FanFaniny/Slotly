@@ -26,7 +26,21 @@ export const adminSettingsRouter = router({
     .input(
       z.object({
         displayName: z.string().min(1).max(120).optional(),
-        timezone: z.string().min(1).optional(),
+        timezone: z
+          .string()
+          .min(1)
+          .refine(
+            (tz) => {
+              try {
+                Intl.DateTimeFormat(undefined, { timeZone: tz });
+                return true;
+              } catch {
+                return false;
+              }
+            },
+            { message: "Invalid timezone" },
+          )
+          .optional(),
         avatarUrl: z.string().url().nullable().optional(),
       }),
     )

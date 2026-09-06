@@ -21,6 +21,14 @@ const FIELD_TYPES = [
 
 const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
+const TIMEZONES = (() => {
+  try {
+    return Intl.supportedValuesOf("timeZone");
+  } catch {
+    return ["UTC"];
+  }
+})();
+
 function FormFieldBuilder({
   fields,
   onChange,
@@ -218,13 +226,24 @@ export function SettingsPage() {
             />
           </div>
           <div className="space-y-2">
-            <Label>Timezone</Label>
-            <Input
+            <Label htmlFor="profile-timezone">Timezone</Label>
+            <select
+              id="profile-timezone"
+              className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               value={profile.timezone}
               onChange={(e) =>
                 setProfile({ ...profile, timezone: e.target.value })
               }
-            />
+            >
+              {profile.timezone && !TIMEZONES.includes(profile.timezone) && (
+                <option value={profile.timezone}>{profile.timezone}</option>
+              )}
+              {TIMEZONES.map((tz) => (
+                <option key={tz} value={tz}>
+                  {tz}
+                </option>
+              ))}
+            </select>
           </div>
           <div className="space-y-2">
             <Label>Avatar URL</Label>
