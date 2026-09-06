@@ -10,6 +10,7 @@ import { LoginPage } from "@/pages/LoginPage";
 import { CalendarPage } from "@/pages/admin/CalendarPage";
 import { ClientsPage } from "@/pages/admin/ClientsPage";
 import { DashboardPage } from "@/pages/admin/DashboardPage";
+import { ProfilePage } from "@/pages/admin/ProfilePage";
 import { ServicesPage } from "@/pages/admin/ServicesPage";
 import { SettingsPage } from "@/pages/admin/SettingsPage";
 
@@ -30,6 +31,7 @@ export function App() {
           <Route path="calendar" element={<CalendarPage />} />
           <Route path="services" element={<ServicesPage />} />
           <Route path="clients" element={<ClientsPage />} />
+          <Route path="profile" element={<ProfilePage />} />
           <Route path="settings" element={<SettingsPage />} />
         </Route>
 
