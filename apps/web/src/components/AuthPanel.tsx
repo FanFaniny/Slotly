@@ -14,6 +14,7 @@ export function AuthPanel() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [repeatEmail, setRepeatEmail] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
   const utils = trpc.useUtils();
@@ -21,6 +22,13 @@ export function AuthPanel() {
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
     setError(null);
+
+    if (mode === "sign-up" && email !== repeatEmail) {
+      setError("Emails do not match");
+      setPending(false);
+      return;
+    }
+
     setPending(true);
 
     try {
@@ -85,6 +93,19 @@ export function AuthPanel() {
             required
           />
         </div>
+
+        {mode === "sign-up" && (
+          <div className="space-y-2">
+            <Label htmlFor="repeatEmail">Repeat email</Label>
+            <Input
+              id="repeatEmail"
+              type="email"
+              value={repeatEmail}
+              onChange={(e) => setRepeatEmail(e.target.value)}
+              required
+            />
+          </div>
+        )}
 
         <div className="space-y-2">
           <Label htmlFor="password">Password</Label>
