@@ -42,7 +42,7 @@ export function BookingSuccessPage() {
       <CheckCircle className="mx-auto h-16 w-16 text-green-500" />
 
       <div>
-        <h1 className="text-2xl font-bold">Booking confirmed!</h1>
+        <h1 className="text-2xl font-bold">You're all set! 🎉</h1>
         <p className="text-muted-foreground">
           Thank you, {booking.client.name}
         </p>

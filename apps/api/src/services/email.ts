@@ -25,9 +25,9 @@ export async function sendBookingConfirmationEmail(data: BookingEmailData) {
     const result = await resend.emails.send({
       from: "Slotly <onboarding@resend.dev>",
       to: data.to,
-      subject: `Booking confirmed — ${data.serviceName}`,
+      subject: `You're booked — ${data.serviceName}`,
       html: `
-        <h2>Your booking is confirmed!</h2>
+        <h2>Your booking is all set!</h2>
         <p>Hey ${data.clientName},</p>
         <p>Your appointment with <strong>${data.masterName}</strong> is confirmed.</p>
         <ul>
@@ -76,19 +76,19 @@ export async function sendBookingUpdateEmail(data: BookingUpdateEmailData) {
     const resend = new Resend(serverEnv.RESEND_API_KEY);
 
     const subjectMap: Record<BookingUpdateType, string> = {
-      RESCHEDULED: `Booking Rescheduled — ${data.serviceName}`,
-      CANCELLED: `Booking Cancelled — ${data.serviceName}`,
-      STATUS_CHANGED: `Booking Status Updated — ${data.serviceName}`,
-      UPDATED: `Booking Details Updated — ${data.serviceName}`,
+      RESCHEDULED: `We rescheduled your booking — ${data.serviceName}`,
+      CANCELLED: `Your booking was cancelled — ${data.serviceName}`,
+      STATUS_CHANGED: `Your booking status changed — ${data.serviceName}`,
+      UPDATED: `Your booking details were updated — ${data.serviceName}`,
     };
 
     const result = await resend.emails.send({
       from: "Slotly <onboarding@resend.dev>",
       to: data.to,
       subject:
-        subjectMap[data.updateType] ?? `Booking Updated — ${data.serviceName}`,
+        subjectMap[data.updateType] ?? `Your booking was updated — ${data.serviceName}`,
       html: `
-        <h2>Your booking has been updated</h2>
+        <h2>Heads up: your booking was updated</h2>
         <p>Hey ${data.clientName},</p>
         <p>Your appointment for <strong>${data.serviceName}</strong> with <strong>${data.masterName}</strong> was updated.</p>
         <ul>
