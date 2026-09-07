@@ -5,11 +5,14 @@ import {
   blockedTimes,
   bookings,
   clients,
+  masters,
   services,
+  slotHolds,
 } from "@slotly/db/schema";
 import dayjs from "dayjs";
-import { and, asc, eq, gte, lte } from "drizzle-orm";
+import { and, asc, eq, gte, lte, sql } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
+import { sendBookingUpdateEmail, type BookingUpdateType } from "@slotly/api/services/email";
 
 export async function listBookings(
   db: Database,
@@ -132,6 +135,8 @@ export interface UpdateBookingInput {
   status?: BookingStatus;
   comment?: string | null;
   notifyClient?: boolean;
+  startsAt?: string;
+  endsAt?: string;
 }
 
 export async function updateBooking(
@@ -139,13 +144,104 @@ export async function updateBooking(
   masterId: string,
   input: UpdateBookingInput,
 ) {
+  const updateSet: Record<string, unknown> = {
+    updatedAt: new Date(),
+  };
+
+  if (input.status !== undefined) {
+    updateSet.status = input.status;
+  }
+  if (input.comment !== undefined) {
+    updateSet.comment = input.comment;
+  }
+  if (input.startsAt !== undefined) {
+    const parsedStarts = dayjs.utc(input.startsAt);
+    if (!parsedStarts.isValid()) {
+      throw new TRPCError({
+        code: "BAD_REQUEST",
+        message: "INVALID_STARTS_AT",
+      });
+    }
+    updateSet.startsAt = parsedStarts.toDate();
+  }
+  if (input.endsAt !== undefined) {
+    const parsedEnds = dayjs.utc(input.endsAt);
+    if (!parsedEnds.isValid()) {
+      throw new TRPCError({
+        code: "BAD_REQUEST",
+        message: "INVALID_ENDS_AT",
+      });
+    }
+    updateSet.endsAt = parsedEnds.toDate();
+  }
+
+  // Validate that endsAt is after startsAt if both are provided
+  if (input.startsAt !== undefined && input.endsAt !== undefined) {
+    const parsedStarts = dayjs.utc(input.startsAt);
+    const parsedEnds = dayjs.utc(input.endsAt);
+    if (parsedEnds.isBefore(parsedStarts)) {
+      throw new TRPCError({
+        code: "BAD_REQUEST",
+        message: "ENDS_AT_MUST_BE_AFTER_STARTS_AT",
+      });
+    }
+  }
+
+  // Check for conflicts if time is being updated
+  if (input.startsAt !== undefined || input.endsAt !== undefined) {
+    const currentBooking = await db.query.bookings.findFirst({
+      where: and(eq(bookings.id, input.bookingId), eq(bookings.masterId, masterId)),
+      columns: { startsAt: true, endsAt: true },
+    });
+
+    if (!currentBooking) {
+      throw new TRPCError({ code: "NOT_FOUND", message: "BOOKING_NOT_FOUND" });
+    }
+
+    const interval = {
+      startsAt: input.startsAt !== undefined ? dayjs.utc(input.startsAt).toDate() : currentBooking.startsAt,
+      endsAt: input.endsAt !== undefined ? dayjs.utc(input.endsAt).toDate() : currentBooking.endsAt,
+    };
+
+    // Check overlapping holds
+    const overlappingHolds = await db
+      .select({ id: slotHolds.id })
+      .from(slotHolds)
+      .where(
+        and(
+          eq(slotHolds.masterId, masterId),
+          gt(slotHolds.expiresAt, sql`NOW()`),
+          isNull(slotHolds.bookingId),
+          lt(slotHolds.startsAt, interval.endsAt),
+          gt(slotHolds.endsAt, interval.startsAt),
+        ),
+      );
+
+    // Check overlapping bookings (exclude current booking)
+    const overlappingBookings = await db
+      .select({ id: bookings.id })
+      .from(bookings)
+      .where(
+        and(
+          eq(bookings.masterId, masterId),
+          ne(bookings.status, "cancelled"),
+          ne(bookings.id, input.bookingId),
+          lt(bookings.startsAt, interval.endsAt),
+          gt(bookings.endsAt, interval.startsAt),
+        ),
+      );
+
+    if (overlappingHolds.length > 0 || overlappingBookings.length > 0) {
+      throw new TRPCError({
+        code: "CONFLICT",
+        message: "SLOT_NOT_AVAILABLE",
+      });
+    }
+  }
+
   const [updated] = await db
     .update(bookings)
-    .set({
-      ...(input.status !== undefined && { status: input.status }),
-      ...(input.comment !== undefined && { comment: input.comment }),
-      updatedAt: new Date(),
-    })
+    .set(updateSet)
     .where(
       and(eq(bookings.id, input.bookingId), eq(bookings.masterId, masterId)),
     )
@@ -155,7 +251,77 @@ export async function updateBooking(
     throw new TRPCError({ code: "NOT_FOUND", message: "BOOKING_NOT_FOUND" });
   }
 
-  return updated;
+  // Fetch full booking with related data for email and response
+  const [fullBooking] = await db
+    .select({
+      id: bookings.id,
+      startsAt: bookings.startsAt,
+      endsAt: bookings.endsAt,
+      status: bookings.status,
+      comment: bookings.comment,
+      service: {
+        id: services.id,
+        name: services.name,
+        durationMin: services.durationMin,
+        priceCents: services.priceCents,
+      },
+      client: {
+        id: clients.id,
+        name: clients.name,
+        phone: clients.phone,
+        email: clients.email,
+      },
+      master: {
+        displayName: masters.displayName,
+        timezone: masters.timezone,
+      },
+    })
+    .from(bookings)
+    .innerJoin(services, eq(bookings.serviceId, services.id))
+    .innerJoin(clients, eq(bookings.clientId, clients.id))
+    .innerJoin(masters, eq(bookings.masterId, masters.id))
+    .where(eq(bookings.id, input.bookingId))
+    .limit(1);
+
+  if (!fullBooking) {
+    throw new TRPCError({ code: "NOT_FOUND", message: "BOOKING_NOT_FOUND" });
+  }
+
+  // Send email notification if requested
+  if (input.notifyClient && fullBooking.client.email) {
+    let updateType: BookingUpdateType | undefined;
+    let newStatus: string | undefined;
+
+    if (input.status === "cancelled") {
+      updateType = "CANCELLED";
+      newStatus = "cancelled";
+    } else if (input.startsAt !== undefined || input.endsAt !== undefined) {
+      updateType = "RESCHEDULED";
+    } else if (input.status !== undefined) {
+      updateType = "STATUS_CHANGED";
+      newStatus = input.status;
+    }
+
+    if (updateType) {
+      try {
+        await sendBookingUpdateEmail({
+          to: fullBooking.client.email,
+          clientName: fullBooking.client.name,
+          masterName: fullBooking.master.displayName,
+          serviceName: fullBooking.service.name,
+          startsAt: fullBooking.startsAt.toISOString(),
+          timezone: fullBooking.master.timezone,
+          updateType,
+          newStatus,
+        });
+      } catch (error) {
+        console.error("[calendar] Failed to send booking update email:", error);
+        // Don't throw error, booking update was successful
+      }
+    }
+  }
+
+  return fullBooking;
 }
 
 export async function updateBookingStatus(
@@ -163,6 +329,7 @@ export async function updateBookingStatus(
   masterId: string,
   bookingId: string,
   status: BookingStatus,
+  notifyClient?: boolean,
 ) {
   const [updated] = await db
     .update(bookings)
@@ -176,7 +343,62 @@ export async function updateBookingStatus(
     throw new TRPCError({ code: "NOT_FOUND", message: "BOOKING_NOT_FOUND" });
   }
 
-  return updated;
+  // Fetch full booking with related data
+  const [fullBooking] = await db
+    .select({
+      id: bookings.id,
+      startsAt: bookings.startsAt,
+      endsAt: bookings.endsAt,
+      status: bookings.status,
+      comment: bookings.comment,
+      service: {
+        id: services.id,
+        name: services.name,
+        durationMin: services.durationMin,
+        priceCents: services.priceCents,
+      },
+      client: {
+        id: clients.id,
+        name: clients.name,
+        phone: clients.phone,
+        email: clients.email,
+      },
+      master: {
+        displayName: masters.displayName,
+        timezone: masters.timezone,
+      },
+    })
+    .from(bookings)
+    .innerJoin(services, eq(bookings.serviceId, services.id))
+    .innerJoin(clients, eq(bookings.clientId, clients.id))
+    .innerJoin(masters, eq(bookings.masterId, masters.id))
+    .where(eq(bookings.id, bookingId))
+    .limit(1);
+
+  if (!fullBooking) {
+    throw new TRPCError({ code: "NOT_FOUND", message: "BOOKING_NOT_FOUND" });
+  }
+
+  // Send cancellation email if status is cancelled and notifyClient is true
+  if (notifyClient && status === "cancelled" && fullBooking.client.email) {
+    try {
+      await sendBookingUpdateEmail({
+        to: fullBooking.client.email,
+        clientName: fullBooking.client.name,
+        masterName: fullBooking.master.displayName,
+        serviceName: fullBooking.service.name,
+        startsAt: fullBooking.startsAt.toISOString(),
+        timezone: fullBooking.master.timezone,
+        updateType: "CANCELLED",
+        newStatus: "cancelled",
+      });
+    } catch (error) {
+      console.error("[calendar] Failed to send cancellation email:", error);
+      // Don't throw error, status update was successful
+    }
+  }
+
+  return fullBooking;
 }
 
 export async function listBlockedTimes(
