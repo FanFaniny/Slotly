@@ -14,6 +14,69 @@ import { and, asc, eq, gte, lte, sql } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 import { sendBookingUpdateEmail, type BookingUpdateType } from "@slotly/api/services/email";
 
+interface FullBooking {
+  id: string;
+  startsAt: Date;
+  endsAt: Date;
+  status: BookingStatus;
+  comment: string | null;
+  service: {
+    id: string;
+    name: string;
+    durationMin: number;
+    priceCents: number;
+  };
+  client: {
+    id: string;
+    name: string;
+    phone: string;
+    email: string | null;
+  };
+  master: {
+    displayName: string;
+    timezone: string;
+  };
+}
+
+async function getFullBooking(db: Database, bookingId: string): Promise<FullBooking> {
+  const [fullBooking] = await db
+    .select({
+      id: bookings.id,
+      startsAt: bookings.startsAt,
+      endsAt: bookings.endsAt,
+      status: bookings.status,
+      comment: bookings.comment,
+      service: {
+        id: services.id,
+        name: services.name,
+        durationMin: services.durationMin,
+        priceCents: services.priceCents,
+      },
+      client: {
+        id: clients.id,
+        name: clients.name,
+        phone: clients.phone,
+        email: clients.email,
+      },
+      master: {
+        displayName: masters.displayName,
+        timezone: masters.timezone,
+      },
+    })
+    .from(bookings)
+    .innerJoin(services, eq(bookings.serviceId, services.id))
+    .innerJoin(clients, eq(bookings.clientId, clients.id))
+    .innerJoin(masters, eq(bookings.masterId, masters.id))
+    .where(eq(bookings.id, bookingId))
+    .limit(1);
+
+  if (!fullBooking) {
+    throw new TRPCError({ code: "NOT_FOUND", message: "BOOKING_NOT_FOUND" });
+  }
+
+  return fullBooking;
+}
+
 export async function listBookings(
   db: Database,
   masterId: string,
@@ -252,40 +315,7 @@ export async function updateBooking(
   }
 
   // Fetch full booking with related data for email and response
-  const [fullBooking] = await db
-    .select({
-      id: bookings.id,
-      startsAt: bookings.startsAt,
-      endsAt: bookings.endsAt,
-      status: bookings.status,
-      comment: bookings.comment,
-      service: {
-        id: services.id,
-        name: services.name,
-        durationMin: services.durationMin,
-        priceCents: services.priceCents,
-      },
-      client: {
-        id: clients.id,
-        name: clients.name,
-        phone: clients.phone,
-        email: clients.email,
-      },
-      master: {
-        displayName: masters.displayName,
-        timezone: masters.timezone,
-      },
-    })
-    .from(bookings)
-    .innerJoin(services, eq(bookings.serviceId, services.id))
-    .innerJoin(clients, eq(bookings.clientId, clients.id))
-    .innerJoin(masters, eq(bookings.masterId, masters.id))
-    .where(eq(bookings.id, input.bookingId))
-    .limit(1);
-
-  if (!fullBooking) {
-    throw new TRPCError({ code: "NOT_FOUND", message: "BOOKING_NOT_FOUND" });
-  }
+  const fullBooking = await getFullBooking(db, input.bookingId);
 
   // Send email notification if requested
   if (input.notifyClient && fullBooking.client.email) {
@@ -344,40 +374,7 @@ export async function updateBookingStatus(
   }
 
   // Fetch full booking with related data
-  const [fullBooking] = await db
-    .select({
-      id: bookings.id,
-      startsAt: bookings.startsAt,
-      endsAt: bookings.endsAt,
-      status: bookings.status,
-      comment: bookings.comment,
-      service: {
-        id: services.id,
-        name: services.name,
-        durationMin: services.durationMin,
-        priceCents: services.priceCents,
-      },
-      client: {
-        id: clients.id,
-        name: clients.name,
-        phone: clients.phone,
-        email: clients.email,
-      },
-      master: {
-        displayName: masters.displayName,
-        timezone: masters.timezone,
-      },
-    })
-    .from(bookings)
-    .innerJoin(services, eq(bookings.serviceId, services.id))
-    .innerJoin(clients, eq(bookings.clientId, clients.id))
-    .innerJoin(masters, eq(bookings.masterId, masters.id))
-    .where(eq(bookings.id, bookingId))
-    .limit(1);
-
-  if (!fullBooking) {
-    throw new TRPCError({ code: "NOT_FOUND", message: "BOOKING_NOT_FOUND" });
-  }
+  const fullBooking = await getFullBooking(db, bookingId);
 
   // Send cancellation email if status is cancelled and notifyClient is true
   if (notifyClient && status === "cancelled" && fullBooking.client.email) {
