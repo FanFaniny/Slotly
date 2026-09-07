@@ -10,7 +10,7 @@ import { LoginPage } from "@/pages/LoginPage";
 import { CalendarPage } from "@/pages/admin/CalendarPage";
 import { ClientsPage } from "@/pages/admin/ClientsPage";
 import { DashboardPage } from "@/pages/admin/DashboardPage";
-import { ProfilePage } from "@/pages/admin/ProfilePage";
+import { ProfilePage } from "@/pages/ProfilePage";
 import { ServicesPage } from "@/pages/admin/ServicesPage";
 import { SettingsPage } from "@/pages/admin/SettingsPage";
 
