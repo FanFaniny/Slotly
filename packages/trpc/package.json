@@ -17,7 +17,6 @@
   "dependencies": {
     "@slotly/db": "workspace:*",
     "@slotly/shared": "workspace:*",
-    "@slotly/api": "workspace:*",
     "@trpc/server": "^11.1.0",
     "dayjs": "^1.11.13",
     "drizzle-orm": "^0.38.4",
