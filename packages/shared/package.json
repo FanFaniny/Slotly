@@ -27,7 +27,12 @@
     "./forms": {
       "types": "./dist/forms.d.ts",
       "default": "./dist/forms.js"
+    },
+    "./email": {
+      "types": "./dist/email.d.ts",
+      "default": "./dist/email.js"
     }
+    
   },
   "scripts": {
     "build": "tsc",
@@ -38,6 +43,7 @@
     "@t3-oss/env-core": "^0.12.0",
     "dayjs": "^1.11.13",
     "rrule": "^2.8.1",
+    "resend": "^4.1.2",
     "zod": "^3.24.2"
   },
   "devDependencies": {

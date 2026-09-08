@@ -12,7 +12,7 @@ import {
 import dayjs from "dayjs";
 import { and, asc, eq, gte, lte, sql } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
-import { sendBookingUpdateEmail, type BookingUpdateType } from "@slotly/api/services/email";
+import { sendBookingUpdateEmail, type BookingUpdateType } from "@slotly/shared/email";
 
 interface FullBooking {
   id: string;

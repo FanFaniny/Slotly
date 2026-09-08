@@ -17,7 +17,7 @@ const dateRangeInput = z.object({
   rangeEnd: z.string().datetime(),
 });
 
-export const adminCalendarRouter = router({
+export const adminCalendarRouter: ReturnType<typeof router> = router({
   getEvents: protectedProcedure
     .input(dateRangeInput)
     .query(async ({ ctx, input }) => {
