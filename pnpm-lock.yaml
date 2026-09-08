@@ -277,9 +277,6 @@ importers:
 
   packages/trpc:
     dependencies:
-      '@slotly/api':
-        specifier: workspace:*
-        version: link:../../apps/api
       '@slotly/db':
         specifier: workspace:*
         version: link:../db
