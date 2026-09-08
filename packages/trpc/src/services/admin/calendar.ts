@@ -10,7 +10,7 @@ import {
   slotHolds,
 } from "@slotly/db/schema";
 import dayjs from "dayjs";
-import { and, asc, eq, gte, lte, sql } from "drizzle-orm";
+import { and, asc, eq, gte, lte, sql, ne, lt, gt, isNull } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 import { sendBookingUpdateEmail, type BookingUpdateType } from "@slotly/shared/email";
 
