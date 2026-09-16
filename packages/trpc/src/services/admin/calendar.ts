@@ -14,7 +14,7 @@ import { and, asc, eq, gte, lte, sql, ne, lt, gt, isNull } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 import { sendBookingUpdateEmail, type BookingUpdateType } from "@slotly/shared/email";
 
-interface FullBooking {
+export interface FullBooking {
   id: string;
   startsAt: Date;
   endsAt: Date;
