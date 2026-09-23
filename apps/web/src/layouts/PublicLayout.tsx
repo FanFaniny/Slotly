@@ -9,8 +9,10 @@ import {
   X,
 } from "lucide-react";
 import { Link, Outlet, useLocation } from "react-router-dom";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
+import { FeedbackWidget } from "@/components/ui/FeedbackWidget";
 import { authClient } from "@/lib/auth-client";
 import { trpc } from "@/lib/trpc";
 import { cn } from "@/lib/utils";
@@ -20,10 +22,28 @@ export function PublicLayout() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const { data: session } = trpc.auth.getSession.useQuery();
 
+  const createReview = trpc.public.review.createReview.useMutation({
+    onSuccess: () => {
+      toast.success("Feedback submitted successfully!");
+    },
+    onError: (err) => {
+      toast.error(err.message);
+    },
+  });
+
+  const { data: findReviews } = trpc.public.review.getReviews.useQuery();
+
   const handleSignOut = async () => {
     await authClient.signOut();
     window.location.href = "/";
   };
+
+  const handleFeedback = (feedback: string, rating: number) => {
+    createReview.mutate({
+      rating: rating,
+      comment: feedback,
+    });
+  }
 
   const navLinks = [
     { to: "/", label: "Home", icon: Home, exact: true },
@@ -148,6 +168,11 @@ export function PublicLayout() {
           <Outlet />
         </main>
       </div>
+      {/* Feedback Widget */}
+      <FeedbackWidget
+        handleFeedback={handleFeedback}
+        findReviews={findReviews}
+      />
     </div>
   );
 }

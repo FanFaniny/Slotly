@@ -5,6 +5,7 @@ import {
   timestamp,
   uuid,
   index,
+  uniqueIndex,
 } from "drizzle-orm/pg-core";
 
 import { bookingStatusEnum } from "./enums.js";
@@ -43,7 +44,7 @@ export const bookings = pgTable(
       .$onUpdate(() => new Date()),
   },
   (table) => [
-    index("bookings_master_starts_at_idx").on(table.masterId, table.startsAt),
+    uniqueIndex("bookings_master_starts_at_idx").on(table.masterId, table.startsAt),
     index("bookings_client_id_idx").on(table.clientId),
   ],
 );

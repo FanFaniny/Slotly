@@ -11,3 +11,4 @@ export * from "./blocked-times.js";
 export * from "./auth.js";
 export * from "./relations.js";
 export * from "./zod.js";
+export * from "./review.js";

@@ -37,6 +37,7 @@
 │           │       ├── badge.tsx
 │           │       ├── button.tsx
 │           │       ├── card.tsx
+│           │       ├── FeedbackWidget.tsx
 │           │       ├── input.tsx
 │           │       ├── skeleton.tsx
 │           │       └── textarea.tsx

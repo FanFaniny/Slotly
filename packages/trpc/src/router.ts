@@ -24,6 +24,8 @@ import { healthRouter } from "./routers/health.js";
 
 import { publicProfileRouter } from "./routers/public/profile.js";
 
+import { reviewsRouter } from "./routers/public/reviews.js";
+
 import { router } from "./trpc.js";
 
 
@@ -41,6 +43,8 @@ export const appRouter = router({
     availability: publicAvailabilityRouter,
 
     booking: publicBookingRouter,
+
+    review: reviewsRouter,
 
   }),
 
