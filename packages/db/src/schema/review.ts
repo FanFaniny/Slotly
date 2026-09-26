@@ -13,7 +13,7 @@ export const reviews = pgTable(
     "reviews",
     {
         id: uuid("id").primaryKey().defaultRandom(),
-        userId: uuid("user_id")
+        userId: text("user_id")
         .notNull()
         .references(() => masters.id, { onDelete: "cascade" }),
         username: text("username").notNull(),

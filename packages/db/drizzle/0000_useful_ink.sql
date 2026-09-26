@@ -143,7 +143,7 @@ CREATE TABLE "verification" (
 --> statement-breakpoint
 CREATE TABLE "reviews" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"user_id" uuid NOT NULL,
+	"user_id" text NOT NULL,
 	"username" text NOT NULL,
 	"rating" integer NOT NULL,
 	"comment" text,
