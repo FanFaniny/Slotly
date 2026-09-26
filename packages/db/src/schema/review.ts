@@ -7,7 +7,7 @@ import {
     integer
 } from "drizzle-orm/pg-core";
 
-import { masters } from "./masters.js";
+import { user } from "./index.js";
 
 export const reviews = pgTable(
     "reviews",
@@ -15,7 +15,7 @@ export const reviews = pgTable(
         id: uuid("id").primaryKey().defaultRandom(),
         userId: text("user_id")
         .notNull()
-        .references(() => masters.id, { onDelete: "cascade" }),
+        .references(() => user.id, { onDelete: "cascade" }),
         username: text("username").notNull(),
         rating: integer("rating").notNull(),
         comment: text("comment"),

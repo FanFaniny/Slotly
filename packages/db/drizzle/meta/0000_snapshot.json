@@ -1,5 +1,5 @@
 {
-  "id": "18b5edbb-0897-4055-8f6f-993fdb859be3",
+  "id": "9e146f89-c38f-4355-96dc-636ca385d15a",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -1412,10 +1412,10 @@
         }
       },
       "foreignKeys": {
-        "reviews_user_id_masters_id_fk": {
-          "name": "reviews_user_id_masters_id_fk",
+        "reviews_user_id_user_id_fk": {
+          "name": "reviews_user_id_user_id_fk",
           "tableFrom": "reviews",
-          "tableTo": "masters",
+          "tableTo": "user",
           "columnsFrom": [
             "user_id"
           ],
