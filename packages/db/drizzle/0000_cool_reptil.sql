@@ -162,7 +162,7 @@ ALTER TABLE "work_schedule_blocks" ADD CONSTRAINT "work_schedule_blocks_master_i
 ALTER TABLE "blocked_times" ADD CONSTRAINT "blocked_times_master_id_masters_id_fk" FOREIGN KEY ("master_id") REFERENCES "public"."masters"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "account" ADD CONSTRAINT "account_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "session" ADD CONSTRAINT "session_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "reviews" ADD CONSTRAINT "reviews_user_id_masters_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."masters"("user_id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "reviews" ADD CONSTRAINT "reviews_user_id_masters_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."masters"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 CREATE UNIQUE INDEX "masters_user_id_idx" ON "masters" USING btree ("user_id");--> statement-breakpoint
 CREATE UNIQUE INDEX "masters_username_idx" ON "masters" USING btree ("username");--> statement-breakpoint
 CREATE UNIQUE INDEX "masters_email_idx" ON "masters" USING btree ("email");--> statement-breakpoint

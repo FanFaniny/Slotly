@@ -1,5 +1,5 @@
 {
-  "id": "2155f8a7-0044-4179-b9ec-8678b37423c4",
+  "id": "c60dd5d4-4f2f-4ff7-94bd-4394cb90089a",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -1412,15 +1412,15 @@
         }
       },
       "foreignKeys": {
-        "reviews_user_id_masters_user_id_fk": {
-          "name": "reviews_user_id_masters_user_id_fk",
+        "reviews_user_id_masters_id_fk": {
+          "name": "reviews_user_id_masters_id_fk",
           "tableFrom": "reviews",
           "tableTo": "masters",
           "columnsFrom": [
             "user_id"
           ],
           "columnsTo": [
-            "user_id"
+            "id"
           ],
           "onDelete": "cascade",
           "onUpdate": "no action"

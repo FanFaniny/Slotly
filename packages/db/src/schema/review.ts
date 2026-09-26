@@ -15,7 +15,7 @@ export const reviews = pgTable(
         id: uuid("id").primaryKey().defaultRandom(),
         userId: uuid("user_id")
         .notNull()
-        .references(() => masters.userId, { onDelete: "cascade" }),
+        .references(() => masters.id, { onDelete: "cascade" }),
         username: text("username").notNull(),
         rating: integer("rating").notNull(),
         comment: text("comment"),
